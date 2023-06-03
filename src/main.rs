@@ -1,6 +1,4 @@
-mod change_case;
-mod to_hex;
-mod to_int;
+mod utils;
 
 use std::env;
 
@@ -21,8 +19,8 @@ fn main() {
     if args.contains(&one_flag) {
         for s in inputs {
             if !s.eq(&one_flag) {
-                println!("toUpper: {}", change_case::to_upper(&s));
-                println!("toLower: {}", change_case::to_lower(&s));
+                println!("toUpper: {}", utils::to_upper(&s));
+                println!("toLower: {}", utils::to_lower(&s));
             }
         }
         return;
@@ -31,7 +29,7 @@ fn main() {
     if args.contains(&two_flag) {
         for s in inputs {
             if !s.eq(&two_flag) {
-                println!("{} -> {}", s, to_hex::bin_to_hex(&s));
+                println!("{} -> {}", s, utils::bin_to_hex(&s));
             }
         }
         return;
@@ -41,7 +39,7 @@ fn main() {
         for s in inputs {
             if !s.eq(&three_flag) {
                 let i = s.parse().unwrap();
-                println!("{} -> {}", s, to_hex::int_to_hex(i));
+                println!("{} -> {}", s, utils::int_to_hex(i));
             }
         }
     }
@@ -49,7 +47,7 @@ fn main() {
     if args.contains(&four_flag) {
         for s in inputs {
             if !s.eq(&four_flag) {
-                println!("{} -> {}", s, to_int::str_to_int(s));
+                println!("{} -> {}", s, utils::str_to_int(s));
             }
         }
     }
