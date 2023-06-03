@@ -1,7 +1,39 @@
 const HEX_ARR: [char; 16] = [
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
 ];
 
+/* Question 1: implementing toUpper and toLower with bitwise operations.
+
+*/
+pub fn to_upper(s: &String) -> String {
+    let mut str = String::with_capacity(s.len());
+    for c in s.chars() {
+        if c >= 'a' && c <= 'z' {
+            str.push(char::from(c as u8 & 0xdf));
+        } else {
+            str.push(c);
+        }
+    }
+
+    return str;
+}
+
+pub fn to_lower(s: &String) -> String {
+    let mut str = String::with_capacity(s.len());
+    for c in s.chars() {
+        if c >= 'A' && c <= 'Z' {
+            str.push(char::from(c as u8 | 0x20));
+        } else {
+            str.push(c);
+        }
+    }
+
+    return str;
+}
+
+/* Question 2: Converting string repr of binary number to hexidecimal
+
+*/
 pub fn bin_to_hex(s: &String) -> String {
     let r = s.len() % 4;
     let iterations = s.len() / 4;
@@ -10,7 +42,7 @@ pub fn bin_to_hex(s: &String) -> String {
     out_str.push('0');
     out_str.push('x');
     if r != 0 {
-        let first_char = &s[0..r + 1];
+        let first_char = &s[0..r];
         let mut j = 1;
         let mut v = 0;
         for c in first_char.chars().rev() {
@@ -38,29 +70,45 @@ pub fn bin_to_hex(s: &String) -> String {
     return out_str;
 }
 
-pub fn int_to_hex(i: i128) -> String {
-    let mut window = 31;
+/* Question 3: Converting integer to hexidecimal by masking 4 bits at a time */
+pub fn int_to_hex(i: i32) -> String {
+    let mut nyble = 7;
     let mask = 0b1111;
     let mut s = String::with_capacity(10);
     s.push('0');
     s.push('x');
-    while window >= 0 {
-        let c = (i & (mask << (window * 4))) >> (window * 4);
-        println!("{}", c);
+
+    // Most significant nyble of negative 2's compement integers are a special
+    // case. Mask all but the leading bit to allow right bitshifting to behave
+    // as intended.
+    if i < 0 {
+        let leading_mask = 0x7 << (nyble * 4);
+        let mut leading_nyble = i & leading_mask;
+        leading_nyble >>= nyble * 4;
+        leading_nyble |= 0b1000;
+        s.push(HEX_ARR[leading_nyble as usize]);
+        nyble -= 1;
+    }
+
+    while nyble >= 0 {
+        // shift 4-bit mask left to get bits in that window, then
+        // shift it back to the right to get the character from the
+        // lookup table HEX_ARR.
+        let c = (i & (mask << (nyble * 4))) >> (nyble * 4);
         s.push(HEX_ARR[c as usize]);
-        window -= 1;
+        nyble -= 1;
     }
 
     return s;
 }
 
-
+/* Question 4: Converting ASCII representation of an integer to its integer
+  value.
+*/
 pub fn str_to_int(s: &String) -> i32 {
-    
-    let mut num:i32 = 0;
+    let mut num: i32 = 0;
     let mut negative = false;
-    for  c in s.chars() {
-        
+    for c in s.chars() {
         // only expecting the first char to be '-', but this method
         // allows for strings of the form '000-000' to also be evaluated
         // as negative numbers.
@@ -74,31 +122,5 @@ pub fn str_to_int(s: &String) -> i32 {
         num += c as i32 - '0' as i32;
     }
 
-    return if negative {-1 * num} else  {num};
-}
-
-pub fn to_upper(s: &String) -> String {
-    let mut str = String::with_capacity(s.len());
-    for c in s.chars() {
-        if c >= 'a' && c <= 'z' {
-            str.push(char::from(c as u8 & 0xdf));
-        } else {
-            str.push(c);
-        }
-    }
-
-    return str;
-}
-
-pub fn to_lower(s: &String) -> String {
-    let mut str = String::with_capacity(s.len());
-    for c in s.chars() {
-        if c >= 'A' && c <= 'Z' {
-            str.push(char::from(c as u8 | 0x20));
-        } else {
-            str.push(c);
-        }
-    }
-
-    return str;
+    return if negative { -1 * num } else { num };
 }
