@@ -53,3 +53,52 @@ pub fn int_to_hex(i: i128) -> String {
 
     return s;
 }
+
+
+pub fn str_to_int(s: &String) -> i32 {
+    
+    let mut num:i32 = 0;
+    let mut negative = false;
+    for  c in s.chars() {
+        
+        // only expecting the first char to be '-', but this method
+        // allows for strings of the form '000-000' to also be evaluated
+        // as negative numbers.
+        if c == '-' {
+            negative = true;
+            continue;
+        }
+        num *= 10;
+        // Rust does not support char - char.
+        // Have to cast values to i32 to perform subtraction
+        num += c as i32 - '0' as i32;
+    }
+
+    return if negative {-1 * num} else  {num};
+}
+
+pub fn to_upper(s: &String) -> String {
+    let mut str = String::with_capacity(s.len());
+    for c in s.chars() {
+        if c >= 'a' && c <= 'z' {
+            str.push(char::from(c as u8 & 0xdf));
+        } else {
+            str.push(c);
+        }
+    }
+
+    return str;
+}
+
+pub fn to_lower(s: &String) -> String {
+    let mut str = String::with_capacity(s.len());
+    for c in s.chars() {
+        if c >= 'A' && c <= 'Z' {
+            str.push(char::from(c as u8 | 0x20));
+        } else {
+            str.push(c);
+        }
+    }
+
+    return str;
+}
