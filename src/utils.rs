@@ -78,14 +78,24 @@ pub fn int_to_hex(i: i32) -> String {
     s.push('0');
     s.push('x');
 
-    // Most significant nyble of negative 2's compement integers are a special
-    // case. Mask all but the leading bit to allow right bitshifting to behave
-    // as intended.
+    // Most significant nyble of negative 2's compement integers is a special
+    // case. Ignore the leading bit to allow right bitshifting to behave
+    // as intended. Then, a bitwise union reintroduces the ignored leading bit.
     if i < 0 {
+        // Shift 0b0111 28 bits to the left
         let leading_mask = 0x7 << (nyble * 4);
+
+        // leading_nyble = 0b 0xxx 0000 0000 0000 0000 0000 0000 0000
+        // where xxx are the 2nd, 3rd and 4th bits in i.
         let mut leading_nyble = i & leading_mask;
+
+        // leading_nyble = 0b 0000 0000 0000 0000 0000 0000 0000 0xxx
         leading_nyble >>= nyble * 4;
+
+        // leading_nyble = 0b 0000 0000 0000 0000 0000 0000 0000 1xxx
         leading_nyble |= 0b1000;
+
+        // By construction, leading_nyble is at least 8 and at most F, base 16
         s.push(HEX_ARR[leading_nyble as usize]);
         nyble -= 1;
     }
@@ -93,7 +103,8 @@ pub fn int_to_hex(i: i32) -> String {
     while nyble >= 0 {
         // shift 4-bit mask left to get bits in that window, then
         // shift it back to the right to get the character from the
-        // lookup table HEX_ARR.
+        // lookup table HEX_ARR. By construction, c is at least 0 and
+        // at most F, base 16, after these operations.
         let c = (i & (mask << (nyble * 4))) >> (nyble * 4);
         s.push(HEX_ARR[c as usize]);
         nyble -= 1;
